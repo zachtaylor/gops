@@ -48,6 +48,10 @@ func (i in) Path() string {
 	return i.URL.Path
 }
 
+func (i in) Header(k string) string {
+	return i.Request.Header.Get(k)
+}
+
 func (i in) Query(k string) string {
 	if q := i.URL.Query()[k]; q != nil && len(q) > 0 {
 		return q[0]
@@ -57,6 +61,10 @@ func (i in) Query(k string) string {
 
 func (i in) Cookie(k string) string {
 	return i.Cookie(k)
+}
+
+func (i in) Body() gops.ReadCloser {
+	return i.Request.Body
 }
 
 type out struct {

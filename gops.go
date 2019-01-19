@@ -28,7 +28,7 @@ func (t *t) Handle(i In, o Out) {
 	t.h(i, o)
 }
 
-// In is used by Plugin as a header for http.Request
+// In is used by Plugin as an interface for http.Request
 type In interface {
 	// Secure returns true if TLS != nil
 	Secure() bool
@@ -38,18 +38,42 @@ type In interface {
 	Host() string
 	// Path returns Request URL path
 	Path() string
+	// Header returns the value of given Request header
+	Header(string) string
 	// Query returns the 1st value of given Request query param
 	Query(string) string
 	// Cookie returns the value of given Request cookie
 	Cookie(string) string
+	// Body returns the given request body
+	Body() ReadCloser
 }
 
 // Out is used by Plugin as a header for http.ResponseWriter
 type Out interface {
+	Writer
 	// Header adds an entry to response headers
 	Header(string, string)
 	// StatusCode writes the status code
 	StatusCode(int)
-	// Write sends response data
+}
+
+// Reader is equivalent to io.Reader
+type Reader interface {
+	Read([]byte) (int, error)
+}
+
+// Writer is equivalent to io.Writer
+type Writer interface {
 	Write([]byte) (int, error)
+}
+
+// Closer is equivalent to io.Closer
+type Closer interface {
+	Close() error
+}
+
+// ReadCloser is equivalent to io.ReadCloser
+type ReadCloser interface {
+	Reader
+	Closer
 }

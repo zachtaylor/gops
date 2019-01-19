@@ -2,13 +2,13 @@
 
 Provides a basic server, using Go 1.8 plugin system
 
-# Package gops
+# Package `gops`
 
 ```
 import "ztaylor.me/gops"
 ```
 
-Provides basic HTTP headers, for use by plugins, to interface with `net/http`
+Provides basic IO pattern, to interface with `net/http`
 
 # Command `gops`
 
@@ -16,20 +16,20 @@ Provides basic HTTP headers, for use by plugins, to interface with `net/http`
 ... $ go install ztaylor.me/gops/cmd/gops
 ```
 
-Executable which serves plugins
+Executable server host that requires plugins
 
 ## Options
 
 ```
-GOPS_PATH   path to use in place of /srv/gops/
+GOPS_PATH     path to load plugins from (default: /srv/gops/)
 
-LOG_LEVEL   one of ["debug","info","warn","error"]
+LOG_LEVEL     one of ["debug","info","warn","error"] (default: info)
 
-PORT        GoPS starts using only this port
+PORT          GoPS starts using only this single port (default: 80 and 443)
 ```
 
 # Plugins
 
-Plugins are go executables (read: package `main`) built with the arg `-buildmode=plugin`
+Plugins are go `main` packages built with `-buildmode=plugin`
 
-Plugins must expose a variable named `Plugin` of type `gops.Plugin`
+Plugins must expose a variable named `Plugin` of type `gops.Plugin` to be imported by GoPS
