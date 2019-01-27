@@ -34,14 +34,20 @@ type In interface {
 	Secure() bool
 	// Method returns Request method
 	Method() string
+	// Proto returns Request proto
+	Proto() string
 	// Method returns Request host
 	Host() string
 	// Path returns Request URL path
 	Path() string
 	// Header returns the value of given Request header
 	Header(string) string
+	// RawQuery returns Request raw query
+	RawQuery() string
 	// Query returns the 1st value of given Request query param
 	Query(string) string
+	// FormValue returns Request form value
+	FormValue(string) string
 	// Cookie returns the value of given Request cookie
 	Cookie(string) string
 	// Body returns the given request body
@@ -51,6 +57,8 @@ type In interface {
 // Out is used by Plugin as a header for http.ResponseWriter
 type Out interface {
 	Writer
+	// Headers returns ResponseWriter headers
+	Headers() map[string][]string
 	// Header adds an entry to response headers
 	Header(string, string)
 	// StatusCode writes the status code

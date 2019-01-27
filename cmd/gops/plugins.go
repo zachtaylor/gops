@@ -24,43 +24,55 @@ func open(path string) (gops.Plugin, error) {
 	}
 }
 
-type adapter struct {
-	gops.Plugin
-}
-
 type in struct {
-	*http.Request
+	Request *http.Request
 }
 
 func (i in) Secure() bool {
-	return i.TLS != nil
+	return i.Request.TLS != nil
 }
 
 func (i in) Method() string {
-	return i.Method()
+	return i.Request.Method
+}
+
+func (i in) Proto() string {
+	return i.Request.Proto
 }
 
 func (i in) Host() string {
-	return i.Host()
+	return i.Request.Host
 }
 
 func (i in) Path() string {
-	return i.URL.Path
+	return i.Request.URL.Path
 }
 
 func (i in) Header(k string) string {
 	return i.Request.Header.Get(k)
 }
 
+func (i in) RawQuery() string {
+	return i.Request.URL.RawQuery
+}
+
 func (i in) Query(k string) string {
-	if q := i.URL.Query()[k]; q != nil && len(q) > 0 {
+	if q := i.Request.URL.Query()[k]; q != nil && len(q) > 0 {
 		return q[0]
 	}
 	return ""
 }
 
+func (i in) FormValue(k string) string {
+	return i.Request.FormValue(k)
+}
+
 func (i in) Cookie(k string) string {
-	return i.Cookie(k)
+	if c, err := i.Request.Cookie(k); err != nil {
+		return ""
+	} else {
+		return c.String()
+	}
 }
 
 func (i in) Body() gops.ReadCloser {
@@ -68,7 +80,11 @@ func (i in) Body() gops.ReadCloser {
 }
 
 type out struct {
-	http.ResponseWriter
+	ResponseWriter http.ResponseWriter
+}
+
+func (o out) Headers() map[string][]string {
+	return o.ResponseWriter.Header()
 }
 
 func (o out) Header(k, v string) {
@@ -81,6 +97,10 @@ func (o out) StatusCode(c int) {
 
 func (o out) Write(data []byte) (int, error) {
 	return o.ResponseWriter.Write(data)
+}
+
+type adapter struct {
+	gops.Plugin
 }
 
 func (a *adapter) Route(r *http.Request) bool {
