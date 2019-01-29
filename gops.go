@@ -1,36 +1,11 @@
-// Package gops provides basic headers for use by GoPS Plugins, to reduce the
-// size of compiled binaries versus net/http
+// Package gops provides headers for GoPS plugins
 package gops
 
-// Plugin is the type imported by GoPS, the entry point for plugins
-type Plugin interface {
-	// Route returns whether this Plugin handles the input
-	Route(In) bool
-	// Handle responds to input, as in ServeHTTP
-	Handle(In, Out)
-}
+import "io"
 
-// New creates a Plugin from a Router func and a Handler func
-func New(r func(In) bool, h func(In, Out)) Plugin {
-	return &t{r, h}
-}
-
-type t struct {
-	r func(In) bool
-	h func(In, Out)
-}
-
-func (t *t) Route(i In) bool {
-	return t.r(i)
-}
-
-func (t *t) Handle(i In, o Out) {
-	t.h(i, o)
-}
-
-// In is used by Plugin as an interface for http.Request
+// In is an interface for http.Request
 type In interface {
-	// Secure returns true if TLS != nil
+	// Secure returns Request TLS != nil
 	Secure() bool
 	// Method returns Request method
 	Method() string
@@ -40,48 +15,86 @@ type In interface {
 	Host() string
 	// Path returns Request URL path
 	Path() string
-	// Header returns the value of given Request header
+	// Header returns Request header 1st value
 	Header(string) string
 	// RawQuery returns Request raw query
 	RawQuery() string
-	// Query returns the 1st value of given Request query param
+	// Query returns Request query 1st value
 	Query(string) string
 	// FormValue returns Request form value
 	FormValue(string) string
-	// Cookie returns the value of given Request cookie
+	// Cookie returns Request cookie value
 	Cookie(string) string
-	// Body returns the given request body
-	Body() ReadCloser
+	// Body returns Request body
+	Body() io.ReadCloser
 }
 
-// Out is used by Plugin as a header for http.ResponseWriter
+// Out is an interface for http.ResponseWriter
 type Out interface {
-	Writer
+	io.Writer
 	// Headers returns ResponseWriter headers
 	Headers() map[string][]string
-	// Header adds an entry to response headers
+	// Header adds to ResponseWriter headers
 	Header(string, string)
-	// StatusCode writes the status code
+	// StatusCode writes the ResponseWriter status code
 	StatusCode(int)
 }
 
-// Reader is equivalent to io.Reader
-type Reader interface {
-	Read([]byte) (int, error)
+// Router is an interface for request matching
+type Router interface {
+	// Route tests an input
+	Route(In) bool
 }
 
-// Writer is equivalent to io.Writer
-type Writer interface {
-	Write([]byte) (int, error)
+// Handler is an interface for request handling
+type Handler interface {
+	// Handle responds to input
+	Handle(In, Out)
 }
 
-// Closer is equivalent to io.Closer
-type Closer interface {
-	Close() error
+// Plugin is an interface for import by cmd/gops
+type Plugin interface {
+	Router
+	Handler
 }
 
-// ReadCloser is equivalent to io.ReadCloser
-type ReadCloser interface {
-	Reader
-	Closer
+// New creates a Plugin from Router func and Handler func
+func New(r func(In) bool, h func(In, Out)) Plugin {
+	return &plugin{r, h}
+}
+
+type plugin struct {
+	r func(In) bool
+	h func(In, Out)
+}
+
+func (plugin *plugin) Route(i In) bool {
+	return plugin.r(i)
+}
+
+func (plugin *plugin) Handle(i In, o Out) {
+	plugin.h(i, o)
+}
+
+// Mux is a slice of Plugin that also satisfies Plugin
+type Mux []Plugin
+
+// Route satisfies Router by calling each member Plugin
+func (mux Mux) Route(i In) bool {
+	for _, router := range mux {
+		if !router.Route(i) {
+			return false
+		}
+	}
+	return true
+}
+
+// Handle satisfies Handler by calling each member Plugin
+func (mux Mux) Handle(i In, o Out) {
+	for _, router := range mux {
+		if router.Route(i) {
+			router.Handle(i, o)
+			return
+		}
+	}
 }
