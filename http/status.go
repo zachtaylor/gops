@@ -1,5 +1,5 @@
 // Original copyright 2011 The Go Authors
-package main
+package http
 
 const (
 	StatusOK                           = 200

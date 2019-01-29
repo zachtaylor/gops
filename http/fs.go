@@ -1,5 +1,5 @@
 // Original copyright 2011 The Go Authors
-package main
+package http
 
 import (
 	"errors"
@@ -539,22 +539,17 @@ func containsDotDot(v string) bool {
 
 func isSlashRune(r rune) bool { return r == '/' || r == '\\' }
 
-// type fileHandler struct {
-// 	root FileSystem
-// }
+type fileHandler struct {
+	root FileSystem
+}
 
-// func FileServer(root FileSystem) Handler {
-// 	return &fileHandler{root}
-// }
+func FileServer(root FileSystem) gops.Handler {
+	return &fileHandler{root}
+}
 
-// func (f *fileHandler) Handle(i gops.In, o gops.Out) {
-// 	upath := i.Path()
-// 	if !strings.HasPrefix(upath, "/") {
-// 		upath = "/" + upath
-// 		r.URL.Path = upath
-// 	}
-// 	serveFile(i, o, f.root, path.Clean(upath), true)
-// }
+func (f *fileHandler) Handle(i gops.In, o gops.Out) {
+	serveFile(i, o, f.root, path.Clean(i.Path()), true)
+}
 
 type httpRange struct {
 	start, length int64

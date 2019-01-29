@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"ztaylor.me/gops"
+	"ztaylor.me/gops/http"
 )
 
 type Service struct {
@@ -113,6 +114,6 @@ func (g *GitHttp) requestHandler(i gops.In, o gops.Out) {
 			renderNoAccess(o)
 			return
 		}
-		Error(o, err.Error(), StatusInternalServerError)
+		http.Error(o, err.Error(), http.StatusInternalServerError)
 	}
 }

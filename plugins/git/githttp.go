@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"ztaylor.me/gops"
+	"ztaylor.me/gops/http"
 )
 
 type GitHttp struct {
@@ -165,7 +166,7 @@ func (g *GitHttp) getInfoRefs(hr HandlerReq) error {
 
 	hdrNocache(o)
 	o.Header("Content-Type", fmt.Sprintf("application/x-git-%s-advertisement", service_name))
-	o.StatusCode(StatusOK)
+	o.StatusCode(http.StatusOK)
 	o.Write(packetWrite("# service=git-" + service_name + "\n"))
 	o.Write(packetFlush())
 	o.Write(refs)
@@ -212,7 +213,7 @@ func sendFile(content_type string, hr HandlerReq) error {
 	o.Header("Content-Type", content_type)
 	o.Header("Content-Length", fmt.Sprintf("%d", f.Size()))
 	o.Header("Last-Modified", f.ModTime().Format("Mon, 02 Jan 2006 15:04:05 GMT"))
-	ServeFile(i, o, req_file)
+	http.ServeFile(i, o, req_file)
 
 	return nil
 }

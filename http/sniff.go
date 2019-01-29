@@ -1,5 +1,5 @@
 // Original copyright 2011 The Go Authors
-package main
+package http
 
 import (
 	"bytes"
@@ -13,7 +13,6 @@ func DetectContentType(data []byte) string {
 		data = data[:sniffLen]
 	}
 
-	// Index of the first non-whitespace byte in data.
 	firstNonWS := 0
 	for ; firstNonWS < len(data) && isWS(data[firstNonWS]); firstNonWS++ {
 	}
@@ -24,7 +23,7 @@ func DetectContentType(data []byte) string {
 		}
 	}
 
-	return "application/octet-stream" // fallback
+	return "application/octet-stream"
 }
 
 func isWS(b byte) bool {
@@ -116,11 +115,8 @@ var sniffSignatures = []sniffSig{
 		ct:   "video/avi",
 	},
 
-	// Fonts
 	&maskedSig{
-		// 34 NULL bytes followed by the string "LP"
-		pat: []byte("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x4C\x50"),
-		// 34 NULL bytes followed by \xF\xF
+		pat:  []byte("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x4C\x50"),
 		mask: []byte("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xFF\xFF"),
 		ct:   "application/vnd.ms-fontobject",
 	},
@@ -139,7 +135,7 @@ var sniffSignatures = []sniffSig{
 
 	mp4Sig{},
 
-	textSig{}, // should be last
+	textSig{},
 }
 
 type exactSig struct {

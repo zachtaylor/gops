@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"ztaylor.me/gops"
+	"ztaylor.me/gops/http"
 )
 
 // requestReader returns an io.ReadCloser
@@ -43,21 +44,21 @@ func getServiceType(i gops.In) string {
 
 func renderMethodNotAllowed(i gops.In, o gops.Out) {
 	if i.Proto() == "HTTP/1.1" {
-		o.StatusCode(StatusMethodNotAllowed)
+		o.StatusCode(http.StatusMethodNotAllowed)
 		o.Write([]byte("Method Not Allowed"))
 	} else {
-		o.StatusCode(StatusBadRequest)
+		o.StatusCode(http.StatusBadRequest)
 		o.Write([]byte("Bad Request"))
 	}
 }
 
 func renderNotFound(o gops.Out) {
-	o.StatusCode(StatusNotFound)
+	o.StatusCode(http.StatusNotFound)
 	o.Write([]byte("Not Found"))
 }
 
 func renderNoAccess(o gops.Out) {
-	o.StatusCode(StatusForbidden)
+	o.StatusCode(http.StatusForbidden)
 	o.Write([]byte("Forbidden"))
 }
 
