@@ -58,22 +58,22 @@ type Plugin interface {
 	Handler
 }
 
-// New creates a Plugin from Router func and Handler func
-func New(r func(In) bool, h func(In, Out)) Plugin {
+// New creates a Plugin from Router and Handler
+func New(r Router, h Handler) Plugin {
 	return &plugin{r, h}
 }
 
 type plugin struct {
-	r func(In) bool
-	h func(In, Out)
+	Router  Router
+	Handler Handler
 }
 
 func (plugin *plugin) Route(i In) bool {
-	return plugin.r(i)
+	return plugin.Router.Route(i)
 }
 
 func (plugin *plugin) Handle(i In, o Out) {
-	plugin.h(i, o)
+	plugin.Handler.Handle(i, o)
 }
 
 // Mux is a slice of Plugin that also satisfies Plugin

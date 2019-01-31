@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"io"
 	"net/http"
 	"plugin"
 
@@ -68,14 +69,13 @@ func (i in) FormValue(k string) string {
 }
 
 func (i in) Cookie(k string) string {
-	if c, err := i.Request.Cookie(k); err != nil {
-		return ""
-	} else {
+	if c, err := i.Request.Cookie(k); err == nil {
 		return c.String()
 	}
+	return ""
 }
 
-func (i in) Body() gops.ReadCloser {
+func (i in) Body() io.ReadCloser {
 	return i.Request.Body
 }
 

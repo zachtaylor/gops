@@ -1,5 +1,13 @@
 package gops
 
+// HandlerFunc casts Handler from a basic func
+type HandlerFunc func(In, Out)
+
+// Handle satisfies Handler by calling the func
+func (f HandlerFunc) Handle(i In, o Out) {
+	f(i, o)
+}
+
 // RouterDomain creates a Router for Request domain from given string
 type RouterDomain string
 
@@ -39,8 +47,8 @@ func (router RouterPath) Route(i In) bool {
 	return string(router) == i.Path()[:len(router)]
 }
 
-// NewRouterSet creates a Router from any number of Routers
-func NewRouterSet(routers ...Router) Router {
+// RouterSet creates a Router from any number of Routers
+func RouterSet(routers ...Router) Router {
 	return RouterFunc(func(i In) bool {
 		for _, r := range routers {
 			if !r.Route(i) {

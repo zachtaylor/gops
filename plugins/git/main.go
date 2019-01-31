@@ -5,8 +5,8 @@ import (
 )
 
 var Plugin = gops.New(
-	router,
-	server.Handle,
+	gops.RouterFunc(router),
+	server,
 )
 
 func router(i gops.In) bool {
@@ -14,7 +14,7 @@ func router(i gops.In) bool {
 	return len(ua) > 2 && ua[:3] == "git"
 }
 
-var server = GitHttp{
+var server = &GitHttp{
 	ProjectRoot: "/srv/git",
 	GitBinPath:  "/usr/bin/git",
 	UploadPack:  true,

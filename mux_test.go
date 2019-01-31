@@ -7,7 +7,7 @@ import (
 )
 
 func TestRouterPath(t *testing.T) {
-	router := gops.NewRouterPath("/hello/")
+	router := gops.RouterPath("/hello/")
 
 	in := NewInput()
 

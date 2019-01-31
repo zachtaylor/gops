@@ -7,8 +7,8 @@ import (
 )
 
 var Plugin = gops.New(
-	router,
-	handler,
+	gops.RouterFunc(router),
+	gops.HandlerFunc(handler),
 )
 
 func router(i gops.In) bool {
